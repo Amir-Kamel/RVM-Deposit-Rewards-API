@@ -23,13 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$$7c&k*6ce&g5=myyz8e9-z7mwx&5b_pf9crq=bj5j9w^mykm#'
+DJANGO_SECRET_KEY = 'django-insecure-$$7c&k*6ce&g5=myyz8e9-z7mwx&5b_pf9crq=bj5j9w^mykm#' #must be in .env and in enviroment variable in deployment or in production
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', DJANGO_SECRET_KEY)
+if not SECRET_KEY:
+    raise Exception('Missing DJANGO_SECRET_KEY environment variable')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
 
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1').split() #or adding any allowed hosts manually
 
 # Application definition
 
@@ -102,13 +107,14 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dropme',
-        'USER':'dropuser',
-        'PASSWORD':'drop123',
-        'PORT':'5432',
-        'HOST':'localhost'
+        'NAME': os.getenv('POSTGRES_DB', 'dropme'),
+        'USER': os.getenv('POSTGRES_USER', 'dropuser'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'drop123'),
+        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
 }
+#add any other database configurations in .env and in enviroment variable in deployment or in production
 
 
 # Password validation
@@ -129,13 +135,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+EMAIL_USER = 'amir.kghabrial@gmail.com' #must be in .env and in enviroment variable in deployment or in production
+EMAIL_HOST_PASS = 'nbsx jmfb pddf pnae' #must be in .env and in enviroment variable in deployment or in production
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'amir.kghabrial@gmail.com'
-EMAIL_HOST_PASSWORD = 'nbsx jmfb pddf pnae'
-DEFAULT_FROM_EMAIL = 'amir.kghabrial@gmail.com'
+EMAIL_HOST_USER = os.getenv('EMAIL_USER', EMAIL_USER)
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASS', EMAIL_HOST_PASS)
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 
 # Internationalization
@@ -162,6 +172,9 @@ SIMPLE_JWT = {
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
